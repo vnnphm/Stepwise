@@ -1,0 +1,154 @@
+import { useState } from 'react'
+import type { ArchitectureGraph, ArchitectureNode, ArchitectureRelationship } from '../types/architecture.ts'
+import type { Connection, EdgeChange, Node } from '@xyflow/react'
+
+interface ArchitectureGraphEditor {
+    selectedNodeId: string | null
+    selectedEdgeId: string | null
+    selectedNode: ArchitectureNode | null
+    selectedRelationship: ArchitectureRelationship | null
+    selectNode: (event: React.MouseEvent, node: Node) => void
+    selectEdge: (event: React.MouseEvent, edge: { id: string }) => void
+    clearSelection: () => void
+    addNode: () => void
+    renameNode: (nodeId: string, newLabel: string) => void
+    deleteSelectedNode: () => void
+    deleteSelectedRelationship: () => void
+    onConnect: (connection: Connection) => void
+    onEdgesChange: (changes: EdgeChange[]) => void
+}
+
+export function useArchitectureGraphEditor(
+    graph: ArchitectureGraph,
+    setGraph: React.Dispatch<React.SetStateAction<ArchitectureGraph | null>>
+): ArchitectureGraphEditor {
+    const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null)
+    const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null)
+
+    const selectedNode = graph.nodes.find((node) => node.id === selectedNodeId) ?? null
+    const selectedRelationship =
+        graph.relationships.find(
+            (relationship) => `${relationship.from}-${relationship.to}` === selectedEdgeId
+        ) ?? null
+
+    function selectNode(_event: React.MouseEvent, node: Node) {
+        setSelectedNodeId(node.id)
+        setSelectedEdgeId(null)
+    }
+
+    function selectEdge(_event: React.MouseEvent, edge: { id: string }) {
+        setSelectedEdgeId(edge.id)
+        setSelectedNodeId(null)
+    }
+
+    function clearSelection() {
+        setSelectedNodeId(null)
+        setSelectedEdgeId(null)
+    }
+
+    function addNode() {
+        const id = `service-${Date.now()}`
+        const position = {
+            x: 80 + Math.random() * 480,
+            y: 80 + Math.random() * 280,
+        }
+        setGraph((current) => {
+            if (!current) return current
+            return {
+                ...current,
+                nodes: [...current.nodes, { id, kind: 'backend', label: 'New Service', position }],
+            }
+        })
+    }
+
+    function renameNode(nodeId: string, newLabel: string) {
+        setGraph((current) => {
+            if (!current) return current
+
+            return {
+                ...current,
+                nodes: current.nodes.map((node) =>
+                    node.id === nodeId ? { ...node, label: newLabel } : node
+                ),
+            }
+        })
+    }
+
+    function addRelationship(from: string, to: string) {
+        setGraph((current) => {
+            if (!current) return current
+
+            if (current.relationships.some((r) => r.from === from && r.to === to)) return current
+            return { ...current, relationships: [...current.relationships, { from, to }] }
+        })
+    }
+
+    function deleteSelectedNode() {
+        if (!selectedNodeId) return
+        setGraph((current) => {
+            if (!current) return current
+            return {
+                nodes: current.nodes.filter((n) => n.id !== selectedNodeId),
+                relationships: current.relationships.filter(
+                    (r) => r.from !== selectedNodeId && r.to !== selectedNodeId
+                ),
+            }
+        })
+        clearSelection()
+    }
+
+    function deleteSelectedRelationship() {
+        if (!selectedEdgeId) return
+        setGraph((current) => {
+            if (!current) return current
+            return {
+                ...current,
+                relationships: current.relationships.filter(
+                    (r) => `${r.from}-${r.to}` !== selectedEdgeId
+                ),
+            }
+        })
+        clearSelection()
+    }
+
+    function onConnect(connection: Connection) {
+        if (!connection.source || !connection.target) return
+        if (connection.source === connection.target) return
+        addRelationship(connection.source, connection.target)
+    }
+
+    function onEdgesChange(changes: EdgeChange[]) {
+        const removedEdgeIds = changes
+            .filter((change) => change.type === 'remove')
+            .map((change) => change.id)
+
+        if (removedEdgeIds.length === 0) return
+
+        setGraph((current) => {
+            if (!current) return current
+
+            return {
+                ...current,
+                relationships: current.relationships.filter(
+                    (r) => !removedEdgeIds.includes(`${r.from}-${r.to}`)
+                ),
+            }
+        })
+    }
+
+    return {
+        selectedNodeId,
+        selectedEdgeId,
+        selectedNode,
+        selectedRelationship,
+        selectNode,
+        selectEdge,
+        clearSelection,
+        addNode,
+        renameNode,
+        deleteSelectedNode,
+        deleteSelectedRelationship,
+        onConnect,
+        onEdgesChange,
+    }
+}

@@ -1,0 +1,99 @@
+/* App.css */
+.main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 32px;
+}
+
+.top-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  margin-bottom: 20px;
+}
+
+.graph-panel-wrapper {
+  display: flex;
+  padding: 20px;
+  gap: 16px;
+}
+
+.graph-panel {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f4f1ea;
+  padding: 24px;
+  min-height: 500px;
+  flex: 1;
+}
+
+.idea-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text-h);
+}
+
+.idea-input {
+  display: block;
+  width: 100%;
+  padding: 14px 16px;
+  margin-top: 6px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 16px;
+  outline: none;
+  box-sizing: border-box;
+  background: var(--bg);
+  color: var(--text-h);
+}
+
+.idea-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+
+.status-text {
+  margin-top: 10px;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.error-text {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #ef4444;
+}
+
+.node-inspector {
+  width: 220px;
+  padding: 16px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.node-inspector h3 {
+  margin: 0 0 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.node-inspector p {
+  margin-bottom: 8px;
+}
+
+.graph-hint {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--text);
+}
