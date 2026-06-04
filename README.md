@@ -1,6 +1,6 @@
-# Arch Visualizer
+# Stepwise
 
-Arch Visualizer is a React + TypeScript app that turns a plain-language goal into an interactive step-by-step graph. Enter an idea, generate a breakdown with AI, then inspect, edit, connect, and organize the steps visually on a React Flow canvas.
+Stepwise is a React + TypeScript app that turns a plain-language goal into an interactive step-by-step graph. Enter an idea, generate a breakdown with AI, then inspect, edit, connect, and organize the steps visually on a React Flow canvas.
 
 ## What it does
 
