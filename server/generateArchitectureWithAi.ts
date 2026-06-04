@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import {OpenAI} from "openai";
-import type {ArchitectureGraph} from "../src/types/architecture.ts";
+import type {TaskGraph} from "../src/types/architecture.ts";
 import {readFile} from "node:fs/promises";
 import {validateArchitectureGraph} from "../src/lib/validateArchitectureGraph.ts";
 
@@ -12,17 +12,18 @@ const client = new OpenAI({
 const prompt = await readFile("docs/ai-graph-prompt.md", "utf-8");
 
 
-export async function generateArchitectureWithAi(idea:string) : Promise<ArchitectureGraph> {
+export async function generateArchitectureWithAi(idea:string) : Promise<TaskGraph> {
     const response = await client.responses.create({
-        model: "gpt-5.4-mini",
+        model: "gpt-5.4-mini-2026-03-17",
         instructions: prompt,
-        input: `User App idea:
+        input: `Break down the task:
         ${idea}
-        Return only valid JSON matching the ArchitectureGraph contract.`,
+        Return only valid JSON matching the TaskGraph contract.`,
+        //max_output_tokens
     })
     const text = response.output_text
 
-    let parsed: ArchitectureGraph;
+    let parsed: TaskGraph;
     try{
         parsed = JSON.parse(text)
     } catch {

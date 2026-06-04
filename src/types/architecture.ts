@@ -1,20 +1,19 @@
-export type ArchitectureNodeKind = 'frontend' | 'backend' | 'database' | 'realtime' | "payments" |'analytics' | 'cache';
-export type ArchitectureFeature = 'chat' | 'shop' | 'analytics';
+export const STEP_KINDS = ['action', 'decision', 'milestone', 'blocker', 'wait'] as const;
+export type StepKind = typeof STEP_KINDS[number];
 
-export interface ArchitectureNode {
+export interface TaskStep {
     id: string;
-    kind: ArchitectureNodeKind;
+    kind: StepKind;
     label: string;
     position?: { x: number; y: number };
 }
 
-export interface ArchitectureRelationship{
+export interface StepConnection {
     from: string;
     to: string;
 }
 
-export interface ArchitectureGraph{
-    nodes: ArchitectureNode[]
-    relationships: ArchitectureRelationship[]
+export interface TaskGraph {
+    nodes: TaskStep[];
+    relationships: StepConnection[];
 }
-

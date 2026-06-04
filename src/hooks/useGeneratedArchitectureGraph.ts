@@ -1,38 +1,40 @@
-import {useEffect, useState} from "react";
-import type {ArchitectureGraph} from "../types/architecture.ts";
-import {generateArchitectureGraphFromIdea} from "../lib/generateArchitectureGraphFromIdea.ts";
-import {defaultGraph} from "../data/architecturePresets.ts";
+import { useEffect, useState } from "react";
+import type { TaskGraph } from "../types/architecture.ts";
+import { generateArchitectureGraphFromIdea } from "../lib/generateArchitectureGraphFromIdea.ts";
+import { defaultGraph } from "../data/architecturePresets.ts";
 
 export function useGeneratedArchitectureGraph(idea: string) {
-    const [graph, setGraph] = useState<ArchitectureGraph | null>(null)
+    const [graph, setGraph] = useState<TaskGraph | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [generationVersion, setGenerationVersion] = useState(0)
-    const [isLoading, setIsLoading] = useState(false)  // ← explicit flag
+    const [isLoading, setIsLoading] = useState(false)
+    const [snapshotIdea, setSnapshotIdea] = useState(idea)
+    const normalizedIdea = idea.trim().replace(/\s+/g, ' ')
 
-    useEffect(() => {
-        if (!idea.trim()) {          // ← skip empty idea
-            setGraph(null)
-            setError(null)
-            setIsLoading(false)
-            return
-        }
-
-        let canceled = false
+    if (snapshotIdea !== normalizedIdea) {
+        setSnapshotIdea(normalizedIdea)
         setGraph(null)
         setError(null)
-        setIsLoading(true)           // ← set loading explicitly
+        setIsLoading(!!normalizedIdea)
 
-        // Debounce: wait 500ms after the user stops typing
+    }
+
+    useEffect(() => {
+        if (!normalizedIdea) return
+
+        let canceled = false
+
         const timer = setTimeout(async () => {
             try {
-                const result = await generateArchitectureGraphFromIdea(idea)
+                const result = await generateArchitectureGraphFromIdea(normalizedIdea)
                 if (!canceled) {
                     setGraph(result)
                     setGenerationVersion((v) => v + 1)
                 }
             } catch (e) {
                 if (!canceled) {
-                    setError('Failed to generate architecture graph. Please try again later.')
+                    console.error(e)
+                    setError('Could not break down your goal. Please try again.')
                 }
             } finally {
                 if (!canceled) setIsLoading(false)
@@ -41,9 +43,9 @@ export function useGeneratedArchitectureGraph(idea: string) {
 
         return () => {
             canceled = true
-            clearTimeout(timer)      // ← cancel pending debounced call
+            clearTimeout(timer)
         }
-    }, [idea])
+    }, [normalizedIdea])
 
     return { graph: graph ?? defaultGraph, setGraph, isLoading, error, generationVersion }
 }
